@@ -1,17 +1,28 @@
-function [correct,wrong] = knn(n, training_data, test_data)
-    training_set = read_file(training_data);
-    test_set = read_file(test_data);
+function [correct, wrong] = knn(n, data, training_rate)
+    set = read_file(data);
+    total = size(set, 1);
+    pivot = round(total * training_rate);
+    training_set = set(1:pivot, :);
+    test_set = set(pivot+1:total,:);
+    [correct, wrong] = run(n, training_set, test_set);
+end
 
+function output = read_file(file_name)
+    file = fopen(file_name);
+    A = fscanf(file, '%c,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n', [17 inf]);
+    fclose(file);
+    output = A';
+end
+
+function [correct, wrong] = run(n, training_set, test_set)
     correct = 0;
     wrong = 0;
 
-    for i = 1 : length(test_set)
+    for i = 1 : size(test_set, 1)
         distances = calc_all_distances(test_set(i, :), training_set);
-        sorted = sortrows(distances);
-        nearest_neighbors = sorted(1:n, :);
+        sorted_dist = sortrows(distances);
+        nearest_neighbors = sorted_dist(1:n, :);
         class = classify(n, nearest_neighbors);
-%        str = sprintf('expected: %c, classified: %c', );
-%        display(str);
 
         if class == test_set(i, 1)
             correct += 1;
@@ -21,11 +32,13 @@ function [correct,wrong] = knn(n, training_data, test_data)
     end
 end
 
-function output = read_file(file_name)
-    file = fopen(file_name);
-    A = fscanf(file, '%c,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n', [17 inf]);
-    fclose(file);
-    output = A';
+function distances = calc_all_distances(subject, training_set)
+    distances = [];
+    for i = 1 : size(training_set, 1)
+        current = training_set(i, :);
+        dist = euclidian_distance(subject, current);
+        distances = [distances; [dist current(1)]];
+    end
 end
 
 function result = euclidian_distance(a, b)
@@ -36,15 +49,6 @@ function result = euclidian_distance(a, b)
         acc += power(diff, 2);
     end
     result = sqrt(acc);
-end
-
-function distances = calc_all_distances(subject, training_set)
-    distances = [];
-    for i = 1 : length(training_set)
-        current = training_set(i, :);
-        dist = euclidian_distance(subject, current);
-        distances = [distances; [dist current(1)]];
-    end
 end
 
 function class = classify(n, nearest_neighbors)
