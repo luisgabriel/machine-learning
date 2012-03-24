@@ -1,8 +1,8 @@
-function [correct, wrong] = knn(k, data, training_rate)
-    data_set = read_file(data);
-    data_set = normalize_values(data_set);
-    [training_set, test_set] = split_set(data_set, training_rate);
-    [correct, wrong] = run(k, training_set, test_set);
+function [correct, wrong] = knn(k, data, trainingRate, x)
+    dataSet = read_file(data)(1:x, :);
+    dataSet = normalize_values(dataSet);
+    [trainingSet, testSet] = split_set(dataSet, trainingRate);
+    [correct, wrong] = run(k, trainingSet, testSet);
 end
 
 function output = read_file(file_name)
@@ -20,30 +20,30 @@ function output = normalize_values(data)
 
     for i = 2 : size(data, 2)
         column = data(:, i);
-        min_value = min(column);
-        range = max(column) - min_value ;
-        output(:, i) = (column - min_value) / range;
+        minValue = min(column);
+        range = max(column) - minValue ;
+        output(:, i) = (column - minValue) / range;
     end
 end
 
-function [training_set, test_set] = split_set(data_set, training_rate)
-    total = size(data_set, 1);
-    pivot = round(total * training_rate);
-    training_set = data_set(1:pivot, :);
-    test_set = data_set(pivot+1:total,:);
+function [trainingSet, testSet] = split_set(dataSet, trainingRate)
+    total = size(dataSet, 1);
+    pivot = round(total * trainingRate);
+    trainingSet = dataSet(1:pivot, :);
+    testSet = dataSet(pivot+1:total,:);
 end
 
-function [correct, wrong] = run(k, training_set, test_set)
+function [correct, wrong] = run(k, trainingSet, testSet)
     correct = 0;
     wrong = 0;
 
-    for i = 1 : size(test_set, 1)
-        distances = calc_all_distances(test_set(i, :), training_set);
-        sorted_dist = sortrows(distances);
-        nearest_neighbors = sorted_dist(1:k, :);
-        class = classify(k, nearest_neighbors);
+    for i = 1 : size(testSet, 1)
+        distances = calc_all_distances(testSet(i, :), trainingSet);
+        sortedDistances = sortrows(distances);
+        nearestNeighbors = sortedDistances(1:k, :);
+        class = classify(k, nearestNeighbors);
 
-        if class == test_set(i, 1)
+        if class == testSet(i, 1)
             correct += 1;
         else
             wrong += 1;
@@ -51,10 +51,10 @@ function [correct, wrong] = run(k, training_set, test_set)
     end
 end
 
-function distances = calc_all_distances(subject, training_set)
+function distances = calc_all_distances(subject, trainingSet)
     distances = [];
-    for i = 1 : size(training_set, 1)
-        current = training_set(i, :);
+    for i = 1 : size(trainingSet, 1)
+        current = trainingSet(i, :);
         dist = euclidian_distance(subject, current);
         distances = [distances; [dist current(1)]];
     end
@@ -70,8 +70,8 @@ function result = euclidian_distance(a, b)
     result = sqrt(acc);
 end
 
-function class = classify(k, nearest_neighbors)
-    sorted = sortrows(nearest_neighbors, 2);
+function class = classify(k, nearestNeighbors)
+    sorted = sortrows(nearestNeighbors, 2);
     [values, count] = count_unique(sorted(:,2));
 
     if length(values) == k
