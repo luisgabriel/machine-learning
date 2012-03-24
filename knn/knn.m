@@ -27,10 +27,18 @@ function output = normalize_values(data)
 end
 
 function [trainingSet, testSet] = split_set(dataSet, trainingRate)
-    total = size(dataSet, 1);
-    pivot = round(total * trainingRate);
-    trainingSet = dataSet(1:pivot, :);
-    testSet = dataSet(pivot+1:total,:);
+    trainingSet = [];
+    testSet = [];
+    classes = unique(dataSet(:, 1));
+
+    for i = 1 : size(classes, 1)
+        classId = classes(i);
+        content = dataSet(dataSet(:,1) == classId,:);
+        total = size(content, 1);
+        pivot = round(total * trainingRate);
+        trainingSet = [trainingSet; content(1:pivot, :)];
+        testSet = [testSet; content(pivot+1:total,:)];
+    end
 end
 
 function [correct, wrong] = run(k, trainingSet, testSet)
