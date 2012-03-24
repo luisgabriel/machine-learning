@@ -36,8 +36,9 @@ end
 function [correct, wrong] = run(k, trainingSet, testSet)
     correct = 0;
     wrong = 0;
+    testSetSize = size(testSet, 1);
 
-    for i = 1 : size(testSet, 1)
+    for i = 1 : testSetSize
         distances = calc_all_distances(testSet(i, :), trainingSet);
         sortedDistances = sortrows(distances);
         nearestNeighbors = sortedDistances(1:k, :);
@@ -49,6 +50,9 @@ function [correct, wrong] = run(k, trainingSet, testSet)
             wrong += 1;
         end
     end
+
+    correct = correct / testSetSize;
+    wrong = wrong / testSetSize;
 end
 
 function distances = calc_all_distances(subject, trainingSet)
