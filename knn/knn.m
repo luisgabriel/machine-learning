@@ -37,12 +37,25 @@ end
 
 function class = classify(k, nearestNeighbors)
     sorted = sortrows(nearestNeighbors, 2);
-    [values, count] = count_unique(sorted(:,2));
 
-    if length(values) == k
+    if k == 1
         class = sorted(1, 2);
+    elseif k == 2
+        % 2-NN case with same distance and diffent classes -> random choice
+        if (sorted(1, 2) != sorted(2, 2)) && (sorted(1, 1) == sorted(2, 1))
+            choice = round(rand(1));
+            class = sorted(choice, 2);
+        else
+            class = sorted(1, 2);
+        end
     else
-        [_, index] = max(count);
-        class = values(index);
+        [values, count] = count_unique(sorted(:,2));
+
+        if length(values) == k
+            class = sorted(1, 2);
+        else
+            [_, index] = max(count);
+            class = values(index);
+        end
     end
 end
