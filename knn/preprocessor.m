@@ -4,7 +4,6 @@ function [trainingSet, testSet] = preprocessor(data, trainingRate)
 
     if is_cached(prefix, trainingRate) != 0
         [trainingSet, testSet] = load_data(prefix, trainingRate);
-        display('cached');
     else
         dataSet = read_file(data);
         dataSet = normalize_values(dataSet);

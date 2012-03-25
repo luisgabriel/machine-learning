@@ -1,4 +1,4 @@
-function [correct, wrong] = knn(k, trainingSet, testSet)
+function [correct, wrong] = knn(k, trainingSet, testSet, numClasses)
     correct = 0;
     wrong = 0;
     testSetSize = size(testSet, 1);
@@ -7,7 +7,7 @@ function [correct, wrong] = knn(k, trainingSet, testSet)
         distances = calc_all_distances(testSet(i, :), trainingSet);
         sortedDistances = sortrows(distances);
         nearestNeighbors = sortedDistances(1:k, :);
-        class = classify(k, nearestNeighbors);
+        class = classify(k, nearestNeighbors, numClasses);
 
         if class == testSet(i, 1)
             correct += 1;
@@ -35,7 +35,7 @@ function result = euclidian_distance(a, b)
     result = sqrt(sum(diff));
 end
 
-function class = classify(k, nearestNeighbors)
+function class = classify(k, nearestNeighbors, numClasses)
     sorted = sortrows(nearestNeighbors, 2);
 
     if k == 1
@@ -49,13 +49,20 @@ function class = classify(k, nearestNeighbors)
             class = sorted(1, 2);
         end
     else
-        [values, count] = count_unique(sorted(:,2));
+        counter = zeros(numClasses, 1);
+
+        for i = 1 : size(sorted, 1)
+            classId = sorted(i, 2);
+            counter(classId) += 1;
+        end
+
+        [_, newIndex] = max(counter);
+        values = counter(counter ~= 0);
 
         if length(values) == k
             class = sorted(1, 2);
         else
-            [_, index] = max(count);
-            class = values(index);
+            class = newIndex;
         end
     end
 end
