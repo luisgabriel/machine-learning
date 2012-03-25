@@ -31,12 +31,8 @@ end
 
 function result = euclidian_distance(a, b)
     dimensions = min(length(a), length(b));
-    acc = 0;
-    for i = 2 : dimensions
-        diff = a(i) - b(i);
-        acc += power(diff, 2);
-    end
-    result = sqrt(acc);
+    diff = power(a(2:dimensions) - b(2:dimensions), 2);
+    result = sqrt(sum(diff));
 end
 
 function class = classify(k, nearestNeighbors)
