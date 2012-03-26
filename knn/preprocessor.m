@@ -5,7 +5,7 @@ function [trainingSet, testSet] = preprocessor(data, trainingRate)
     if is_cached(prefix, trainingRate) != 0
         [trainingSet, testSet] = load_data(prefix, trainingRate);
     else
-        dataSet = read_file(data);
+        dataSet = dlmread(data);
         dataSet = normalize_values(dataSet);
         [trainingSet, testSet] = split_set(dataSet, trainingRate);
 
@@ -38,24 +38,18 @@ function [trainingSet, testSet] = load_data(prefix, trainingRate)
     testSet = dlmread(fileName);
 end
 
-function output = read_file(fileName)
-    file = fopen(fileName);
-    A = fscanf(file, '%c,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n', [17 inf]);
-    fclose(file);
-    output = A';
-end
-
 function output = normalize_values(data)
     output = [];
 
-    % change the class repersentation to a number starting from 1
-    output(:, 1) = data(:, 1) - 64;
+    output(:, 1) = data(:, 1);
 
     for i = 2 : size(data, 2)
         column = data(:, i);
         minValue = min(column);
         range = max(column) - minValue ;
-        output(:, i) = (column - minValue) / range;
+        if range > 0
+            output(:, i) = (column - minValue) / range;
+        end
     end
 end
 
